@@ -66,6 +66,32 @@ root          56      39  0 Jun07 ?        00:00:15 smbd -F --no-process-group
 root         208      39  0 Jun07 ?        00:15:33 smbd -F --no-process-group
 ```
 
+无请求正在处理时：
+```
+Thread 1 (Thread 0x7f034a32be00 (LWP 208)):
+#0  0x00007f034bfe138f in epoll_wait (epfd=4, events=0x7ffeab168bfc, maxevents=1, timeout=59999) at ../sysdeps/unix/sysv/linux/epoll_wait.c:30
+#1  0x00007f034c344f52 in epoll_event_loop (epoll_ev=0x5559ee59a240, tvalp=0x7ffeab168c40) at ../../lib/tevent/tevent_epoll.c:651
+#2  0x00007f034c34590c in epoll_event_loop_once (ev=0x5559ee576610, location=0x7f034c6e5ef8 "../../source3/smbd/smb2_process.c:2015") at ../../lib/tevent/tevent_epoll.c:938
+#3  0x00007f034c3420a2 in std_event_loop_once (ev=0x5559ee576610, location=0x7f034c6e5ef8 "../../source3/smbd/smb2_process.c:2015") at ../../lib/tevent/tevent_standard.c:110
+#4  0x00007f034c3391ac in _tevent_loop_once (ev=0x5559ee576610, location=0x7f034c6e5ef8 "../../source3/smbd/smb2_process.c:2015") at ../../lib/tevent/tevent.c:825
+#5  0x00007f034c3394fe in tevent_common_loop_wait (ev=0x5559ee576610, location=0x7f034c6e5ef8 "../../source3/smbd/smb2_process.c:2015") at ../../lib/tevent/tevent.c:948
+#6  0x00007f034c342144 in std_event_loop_wait (ev=0x5559ee576610, location=0x7f034c6e5ef8 "../../source3/smbd/smb2_process.c:2015") at ../../lib/tevent/tevent_standard.c:141
+#7  0x00007f034c3395a1 in _tevent_loop_wait (ev=0x5559ee576610, location=0x7f034c6e5ef8 "../../source3/smbd/smb2_process.c:2015") at ../../lib/tevent/tevent.c:967
+#8  0x00007f034c5eebaa in smbd_process (ev_ctx=0x5559ee576610, msg_ctx=0x5559ee5704b0, sock_fd=30, interactive=false) at ../../source3/smbd/smb2_process.c:2015
+#9  0x00005559ecb9509a in smbd_accept_connection (ev=0x5559ee576610, fde=0x5559ee593270, flags=1, private_data=0x5559ee59a240) at ../../source3/smbd/server.c:1037
+#10 0x00007f034c33a469 in tevent_common_invoke_fd_handler (fde=0x5559ee593270, flags=1, removed=0x0) at ../../lib/tevent/tevent_fd.c:142
+#11 0x00007f034c345229 in epoll_event_loop (epoll_ev=0x5559ee588df0, tvalp=0x7ffeab168fe0) at ../../lib/tevent/tevent_epoll.c:737
+#12 0x00007f034c34590c in epoll_event_loop_once (ev=0x5559ee576610, location=0x5559ecb9a790 "../../source3/smbd/server.c:1381") at ../../lib/tevent/tevent_epoll.c:938
+#13 0x00007f034c3420a2 in std_event_loop_once (ev=0x5559ee576610, location=0x5559ecb9a790 "../../source3/smbd/server.c:1381") at ../../lib/tevent/tevent_standard.c:110
+#14 0x00007f034c3391ac in _tevent_loop_once (ev=0x5559ee576610, location=0x5559ecb9a790 "../../source3/smbd/server.c:1381") at ../../lib/tevent/tevent.c:825
+#15 0x00007f034c3394fe in tevent_common_loop_wait (ev=0x5559ee576610, location=0x5559ecb9a790 "../../source3/smbd/server.c:1381") at ../../lib/tevent/tevent.c:948
+#16 0x00007f034c342144 in std_event_loop_wait (ev=0x5559ee576610, location=0x5559ecb9a790 "../../source3/smbd/server.c:1381") at ../../lib/tevent/tevent_standard.c:141
+#17 0x00007f034c3395a1 in _tevent_loop_wait (ev=0x5559ee576610, location=0x5559ecb9a790 "../../source3/smbd/server.c:1381") at ../../lib/tevent/tevent.c:967
+#18 0x00005559ecb95dc2 in smbd_parent_loop (ev_ctx=0x5559ee576610, parent=0x5559ee584930) at ../../source3/smbd/server.c:1381
+#19 0x00005559ecb97ebb in main (argc=3, argv=0x7ffeab169578) at ../../source3/smbd/server.c:2125
+```
+
+有请求正在处理时：
 ```
 #0  Client::write (this=0x5559ee70d570, fd=188, buf=0x5559f268a5a0 "", size=1048576, offset=0) at ./src/client/Client.cc:9558
 #1  0x00007f03491b9346 in cephwrap_pwrite_send (handle=0x5559ee627580, mem_ctx=0x5559ee73af00, ev=0x5559ee576610, fsp=0x5559ee72f6f0, data=0x5559f268a5a0, n=1048576, offset=0) at ../../source3/modules/vfs_ceph.c:573

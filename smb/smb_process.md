@@ -1,4 +1,4 @@
-# default, smbd will start 3 processes:
+# 1. default, smbd will start 3 processes:
 ```
 root          39       2  0 Jun07 ?        00:00:14 smbd -F --no-process-group
 root          55      39  0 Jun07 ?        00:00:14 smbd -F --no-process-group
@@ -59,7 +59,7 @@ Thread 1 (Thread 0x7fb79c37de00 (LWP 56)):
 ```
 
 
-# when a new connection arrives, a new process will be created for processing the new connection 
+# 2. when a new connection arrives, a new process will be created for processing the new connection 
 
 ```
 #0  Client::write (this=0x5559ee70d570, fd=188, buf=0x5559f268a5a0 "", size=1048576, offset=0) at ./src/client/Client.cc:9558

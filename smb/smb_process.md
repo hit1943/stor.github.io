@@ -1,3 +1,66 @@
+# default, smbd will start 3 processes:
+```
+root          39       2  0 Jun07 ?        00:00:14 smbd -F --no-process-group
+root          55      39  0 Jun07 ?        00:00:14 smbd -F --no-process-group
+root          56      39  0 Jun07 ?        00:00:15 smbd -F --no-process-group
+root         208      39  0 Jun07 ?        00:15:33 smbd -F --no-process-group
+```
+
+1. main process
+```
+#0  0x00007fb79e033357 in epoll_wait (epfd=4, events=0x7ffe6fc13aec, maxevents=1, timeout=564032) at ../sysdeps/unix/sysv/linux/epoll_wait.c:30
+#1  0x00007fb79e396f52 in epoll_event_loop (epoll_ev=0x5612bb592df0, tvalp=0x7ffe6fc13b30) at ../../lib/tevent/tevent_epoll.c:651
+#2  0x00007fb79e39790c in epoll_event_loop_once (ev=0x5612bb580610, location=0x5612b9581790 "../../source3/smbd/server.c:1381") at ../../lib/tevent/tevent_epoll.c:938
+#3  0x00007fb79e3940a2 in std_event_loop_once (ev=0x5612bb580610, location=0x5612b9581790 "../../source3/smbd/server.c:1381") at ../../lib/tevent/tevent_standard.c:110
+#4  0x00007fb79e38b1ac in _tevent_loop_once (ev=0x5612bb580610, location=0x5612b9581790 "../../source3/smbd/server.c:1381") at ../../lib/tevent/tevent.c:825
+#5  0x00007fb79e38b4fe in tevent_common_loop_wait (ev=0x5612bb580610, location=0x5612b9581790 "../../source3/smbd/server.c:1381") at ../../lib/tevent/tevent.c:948
+#6  0x00007fb79e394144 in std_event_loop_wait (ev=0x5612bb580610, location=0x5612b9581790 "../../source3/smbd/server.c:1381") at ../../lib/tevent/tevent_standard.c:141
+#7  0x00007fb79e38b5a1 in _tevent_loop_wait (ev=0x5612bb580610, location=0x5612b9581790 "../../source3/smbd/server.c:1381") at ../../lib/tevent/tevent.c:967
+#8  0x00005612b957cdc2 in smbd_parent_loop (ev_ctx=0x5612bb580610, parent=0x5612bb58e930) at ../../source3/smbd/server.c:1381
+#9  0x00005612b957eebb in main (argc=3, argv=0x7ffe6fc140c8) at ../../source3/smbd/server.c:2125
+```
+
+2. notifyd process
+```
+Thread 2 (Thread 0x7fb79bc49700 (LWP 57)):
+#0  0x00007fb79e0005c0 in __GI___nanosleep (requested_time=requested_time@entry=0x7fb79bc48bf0, remaining=remaining@entry=0x0) at ../sysdeps/unix/sysv/linux/nanosleep.c:28
+#1  0x00007fb79e02b414 in usleep (useconds=<optimized out>) at ../sysdeps/posix/usleep.c:32
+#2  0x00007fb79e69a86f in metrics_loop (arg=0x0) at ../../source3/smbd/metrics.c:187
+#3  0x00007fb79e10ffa3 in start_thread (arg=<optimized out>) at pthread_create.c:486
+#4  0x00007fb79e03306f in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:95
+Thread 1 (Thread 0x7fb79c37de00 (LWP 55)):
+#0  0x00007fb79e03338f in epoll_wait (epfd=4, events=0x7ffe6fc13adc, maxevents=1, timeout=30000) at ../sysdeps/unix/sysv/linux/epoll_wait.c:30
+#1  0x00007fb79e396f52 in epoll_event_loop (epoll_ev=0x5612bb592df0, tvalp=0x7ffe6fc13b20) at ../../lib/tevent/tevent_epoll.c:651
+#2  0x00007fb79e39790c in epoll_event_loop_once (ev=0x5612bb580610, location=0x7fb79e3989a0 "../../lib/tevent/tevent_req.c:300") at ../../lib/tevent/tevent_epoll.c:938
+#3  0x00007fb79e3940a2 in std_event_loop_once (ev=0x5612bb580610, location=0x7fb79e3989a0 "../../lib/tevent/tevent_req.c:300") at ../../lib/tevent/tevent_standard.c:110
+#4  0x00007fb79e38b1ac in _tevent_loop_once (ev=0x5612bb580610, location=0x7fb79e3989a0 "../../lib/tevent/tevent_req.c:300") at ../../lib/tevent/tevent.c:825
+#5  0x00007fb79e38e3da in tevent_req_poll (req=0x5612bb59cbf0, ev=0x5612bb580610) at ../../lib/tevent/tevent_req.c:300
+#6  0x00005612b9579ef5 in smbd_notifyd_init (msg=0x5612bb57a4b0, interactive=false, ppid=0x5612bb58e978) at ../../source3/smbd/server.c:463
+#7  0x00005612b957e67e in main (argc=3, argv=0x7ffe6fc140c8) at ../../source3/smbd/server.c:1970
+```
+
+3. cleanupd process
+```
+Thread 2 (Thread 0x7fb79bc49700 (LWP 58)):
+#0  0x00007fb79e0005c0 in __GI___nanosleep (requested_time=requested_time@entry=0x7fb79bc48bf0, remaining=remaining@entry=0x0) at ../sysdeps/unix/sysv/linux/nanosleep.c:28
+#1  0x00007fb79e02b414 in usleep (useconds=<optimized out>) at ../sysdeps/posix/usleep.c:32
+#2  0x00007fb79e69a86f in metrics_loop (arg=0x0) at ../../source3/smbd/metrics.c:187
+#3  0x00007fb79e10ffa3 in start_thread (arg=<optimized out>) at pthread_create.c:486
+#4  0x00007fb79e03306f in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:95
+Thread 1 (Thread 0x7fb79c37de00 (LWP 56)):
+#0  0x00007fb79e03338f in epoll_wait (epfd=4, events=0x7ffe6fc13acc, maxevents=1, timeout=30000) at ../sysdeps/unix/sysv/linux/epoll_wait.c:30
+#1  0x00007fb79e396f52 in epoll_event_loop (epoll_ev=0x5612bb592df0, tvalp=0x7ffe6fc13b10) at ../../lib/tevent/tevent_epoll.c:651
+#2  0x00007fb79e39790c in epoll_event_loop_once (ev=0x5612bb580610, location=0x7fb79e3989a0 "../../lib/tevent/tevent_req.c:300") at ../../lib/tevent/tevent_epoll.c:938
+#3  0x00007fb79e3940a2 in std_event_loop_once (ev=0x5612bb580610, location=0x7fb79e3989a0 "../../lib/tevent/tevent_req.c:300") at ../../lib/tevent/tevent_standard.c:110
+#4  0x00007fb79e38b1ac in _tevent_loop_once (ev=0x5612bb580610, location=0x7fb79e3989a0 "../../lib/tevent/tevent_req.c:300") at ../../lib/tevent/tevent.c:825
+#5  0x00007fb79e38e3da in tevent_req_poll (req=0x5612bb59cb70, ev=0x5612bb580610) at ../../lib/tevent/tevent_req.c:300
+#6  0x00005612b957adac in cleanupd_init (msg=0x5612bb57a4b0, interactive=false, ppid=0x5612bb58e960) at ../../source3/smbd/server.c:690
+#7  0x00005612b957e6c0 in main (argc=3, argv=0x7ffe6fc140c8) at ../../source3/smbd/server.c:1977
+```
+
+
+# when a new connection arrives, a new process will be created for processing the new connection 
+
 ```
 #0  Client::write (this=0x5559ee70d570, fd=188, buf=0x5559f268a5a0 "", size=1048576, offset=0) at ./src/client/Client.cc:9558
 #1  0x00007f03491b9346 in cephwrap_pwrite_send (handle=0x5559ee627580, mem_ctx=0x5559ee73af00, ev=0x5559ee576610, fsp=0x5559ee72f6f0, data=0x5559f268a5a0, n=1048576, offset=0) at ../../source3/modules/vfs_ceph.c:573
